@@ -1,0 +1,56 @@
+/* SearchMovieTile.css */
+
+.search-movie-tile {
+  padding: 1.5rem;
+  color: #fff;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.search-movie-tile:hover {
+  background-color: #333;
+}
+
+.tile-content {
+  display: flex;
+  height: 4rem; /* 64px */
+}
+
+.tile-image {
+  width: auto;
+  height: 100%;
+  border-radius: 0.375rem; /* 6px */
+  aspect-ratio: 2 / 3;
+}
+
+.tile-details {
+  display: flex;
+  flex-direction: column;
+  margin-left: 0.75rem; /* 12px */
+}
+
+.movie-title {
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.rating-year {
+  display: flex;
+  align-items: center;
+  color: #ffd700;
+}
+
+.rating-text {
+  font-size: 0.75rem; /* 12px */
+  color: #666;
+}
+
+.overview-text {
+  font-size: 0.75rem; /* 12px */
+  color: #aaa;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
+}

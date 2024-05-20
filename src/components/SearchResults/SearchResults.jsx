@@ -1,14 +1,33 @@
 import React, { useRef, useEffect } from "react";
 import API from "../../API";
 import SearchMovieTile from "../SearchMovieTile/SearchMovieTile";
-import "./SearchResults.scss";
+import styled from "styled-components";
+
+const SearchResultsContainer = styled.div`
+  width: 100%;
+  transition: transform 0.4s ease-out;
+  transform: translateY(0);
+`;
+
+const SearchResultsList = styled.div`
+  display: grid;
+  align-items: flex-start;
+  gap: 0 0.65em;
+  margin-top: 3rem;
+  grid-auto-rows: 0px;
+  overflow-y: hidden;
+  grid-template: auto / repeat(5, 1fr);
+`;
+
+const SearchResultsEmpty = styled.div`
+  color: #ccc;
+  padding: 1rem;
+`;
 
 export default function SearchResults(props) {
   const [movies, setMovies] = React.useState([]);
   const [results, setResults] = React.useState(false);
-  const resultsRef = useRef(null); // Ref for the results container
 
-  // Load search results from the API
   useEffect(() => {
     if (props.search.length === 0) return;
     API.get(
@@ -24,31 +43,17 @@ export default function SearchResults(props) {
     });
   }, [props.search]);
 
-  // Update display based on results
   useEffect(() => {
     setResults(props.search.length > 0 && movies.length > 0);
   }, [movies, props.search]);
 
-  // Detect clicks outside the results container to hide it
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (resultsRef.current && !resultsRef.current.contains(event.target)) {
-        setResults(false); // Hide results
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [resultsRef]);
-
   return (
-    <div className="search-results-container" ref={resultsRef}>
+    <SearchResultsContainer>
       {results ? (
-        <div className="search-results-list">{movies}</div>
+        <SearchResultsList>{movies}</SearchResultsList>
       ) : (
-        <p className="search-results-empty">Nothing found</p>
+        <SearchResultsEmpty></SearchResultsEmpty>
       )}
-    </div>
+    </SearchResultsContainer>
   );
 }

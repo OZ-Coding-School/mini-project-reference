@@ -1,110 +1,182 @@
+// 사용 xx
+
 import React, { useEffect, useState, useRef } from "react";
-import API from "./API";
-import Movie from "./components/Movie/Movie";
+import styled from "styled-components";
 import { useSelector } from "react-redux";
 import { selectSelectedGenres } from "./redux/reducers/selectedGenresSlice";
-import "./MovieItem.scss";
+import API from "./API";
+import Movie from "./components/Movie/Movie";
+
+const Section = styled.div`
+  position: relative;
+
+  .section-list {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    margin: ${({ theme }) => theme.mobilePadding};
+
+    &.popular-list {
+      overflow-x: hidden;
+      flex-wrap: wrap;
+    }
+    &.top-rated-list {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+    }
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+  .section-item {
+    flex: 0 0 auto;
+    width: calc((100% / 5));
+    overflow: hidden;
+    @media (max-width: 1200px) {
+      width: calc((100% / 4));
+    }
+    @media (max-width: 992px) {
+      width: calc((100% / 3));
+    }
+    @media (max-width: 768px) {
+      width: calc((100% / 2));
+    }
+    @media (max-width: 576px) {
+      width: 100%;
+    }
+    &__img {
+      width: 100%;
+      aspect-ratio: 8 / 12;
+      overflow: hidden;
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+    }
+  }
+`;
+
+const SectionHeader = styled.h1`
+  text-align: left;
+  padding: 1rem 0;
+  margin: 0 4%;
+`;
+
+const ScrollButton = styled.button`
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  background-color: #fff;
+  padding: 0.5rem;
+  border-radius: 5px;
+  color: #000;
+
+  &.left {
+    left: 2%;
+  }
+  &.right {
+    right: 2%;
+  }
+`;
+
+const LoadingIndicator = styled.div`
+  text-align: center;
+`;
 
 export default function MovieItem(props) {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(false);
   const selectedGenres = useSelector(selectSelectedGenres);
   const sliderRef = useRef(null);
-
-  const isPopular = props.name === "인기순";
-  const isTopRated = props.name === "별점순";
-
-  // 데이터를 불러오는 함수
-  const fetchMovies = () => {
-    API.get(`${props.request}&with_genres=${selectedGenres.toString()}`)
-      .then((response) => {
-        const fetchedMovies = response.data.results;
-        console.log(response.data);
-
-        if (isTopRated) {
-          // Top Rated에는 데이터를 3배 복제하여 좌우 스크롤을 위한 충분한 데이터를 제공
-          setMovies([...fetchedMovies, ...fetchedMovies, ...fetchedMovies]);
-        } else {
-          setMovies(fetchedMovies);
-        }
-      })
-      .catch((error) => console.error("Error fetching movies:", error));
-  };
+  const { name, request } = props;
+  const isPopular = name === "인기순";
+  const isTopRated = name === "평점순";
 
   useEffect(() => {
     fetchMovies();
-  }, [selectedGenres, props.request]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (
-        isPopular &&
-        window.innerHeight + window.scrollY >=
-          document.body.offsetHeight - 100 &&
-        !loading
-      ) {
-        setLoading(true);
-        API.get(
-          `${props.request}&page=${
-            Math.floor(movies.length / 20) + 1
-          }&with_genres=${selectedGenres.toString()}`
-        )
-          .then((response) => {
-            setMovies((prev) => [...prev, ...response.data.results]);
-            setLoading(false);
-          })
-          .catch((error) => {
-            console.error("Error fetching more movies:", error);
-            setLoading(false);
-          });
-      }
-    };
-
     if (isPopular) {
       window.addEventListener("scroll", handleScroll);
       return () => window.removeEventListener("scroll", handleScroll);
     }
-  }, [movies.length, selectedGenres, props.request, loading, isPopular]);
+  }, [selectedGenres, request, isPopular]);
 
-  const scrollLeft = () => {
-    if (isTopRated && sliderRef.current) {
-      sliderRef.current.scrollLeft -= sliderRef.current.clientWidth;
+  async function fetchMovies() {
+    try {
+      const response = await API.get(
+        `${request}&with_genres=${selectedGenres.toString()}`
+      );
+      const data = isTopRated
+        ? [
+            ...response.data.results,
+            ...response.data.results,
+            ...response.data.results,
+          ]
+        : response.data.results;
+      setMovies(data);
+    } catch (error) {
+      console.error("Error fetching movies:", error);
     }
-  };
+  }
 
-  const scrollRight = () => {
-    if (isTopRated && sliderRef.current) {
-      sliderRef.current.scrollLeft += sliderRef.current.clientWidth;
+  async function fetchMoreMovies() {
+    try {
+      const nextPage = Math.floor(movies.length / 20) + 1;
+      const response = await API.get(
+        `${request}&page=${nextPage}&with_genres=${selectedGenres.toString()}`
+      );
+      setMovies((prev) => [...prev, ...response.data.results]);
+      console.log(response.data);
+    } catch (error) {
+      console.error("Error fetching more movies:", error);
+    } finally {
+      setLoading(false);
     }
-  };
+  }
 
-  const listClassNames = `section__list ${isPopular ? "popular-list" : ""} ${
-    isTopRated ? "top-rated-list" : ""
-  }`;
+  function handleScroll() {
+    const nearBottom =
+      window.innerHeight + window.scrollY >= document.body.offsetHeight - 100;
+    if (nearBottom && !loading) {
+      setLoading(true);
+      fetchMoreMovies();
+    }
+  }
 
   return (
-    <div className="section">
-      <div className="section__header">
-        <p>{props.name}</p>
-      </div>
-      {isTopRated && (
-        <button onClick={scrollLeft} className="scroll-button left">
-          {"<"}
-        </button>
-      )}
-      <div ref={sliderRef} className={listClassNames}>
+    <Section>
+      <SectionHeader>{name}</SectionHeader>
+      <ScrollButton
+        className="left"
+        onClick={() =>
+          (sliderRef.current.scrollLeft -= sliderRef.current.clientWidth)
+        }
+        disabled={!isTopRated}
+      ></ScrollButton>
+      <div
+        ref={sliderRef}
+        className={`section-list ${
+          isPopular ? "popular-list" : isTopRated ? "top-rated-list" : ""
+        }`}
+      >
         {movies.map((movie, index) => (
           <Movie key={`${movie.id}_${index}`} data={movie} />
         ))}
       </div>
-      {isTopRated && (
-        <button onClick={scrollRight} className="scroll-button right">
-          {">"}
-        </button>
-      )}
+      <ScrollButton
+        className="right"
+        onClick={() =>
+          (sliderRef.current.scrollLeft += sliderRef.current.clientWidth)
+        }
+        disabled={!isTopRated}
+      ></ScrollButton>
       {isPopular && loading && (
-        <div className="loading-indicator">Loading more...</div>
+        <LoadingIndicator>Loading more...</LoadingIndicator>
       )}
-    </div>
+    </Section>
   );
 }

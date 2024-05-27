@@ -318,10 +318,11 @@ export default function NavBar({ setNavBarHeight }) {
                 onMouseEnter={() => setShowDropdown(true)}
                 onMouseLeave={() => setShowDropdown(false)}
               >
-                <ProfileImage
+                {/* <ProfileImage
                   src={currentUser.photoURL || "images/user.png"}
                   alt="Profile"
-                />
+                /> */}
+                <ProfileImage src={"images/user.png"} alt="Profile" />
                 <DropdownMenu $show={showDropdown}>
                   <DropdownItem href="/mypage">관심목록</DropdownItem>
                   <DropdownItem onClick={handleLogoutClick}>

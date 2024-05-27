@@ -5,7 +5,11 @@ import { useBookmarks } from "../../contexts/BookmarkContext";
 import API from "../../API";
 
 const MyPageContainer = styled.div`
-  padding: 1rem 4% 5rem;
+  padding: 0 4% 5rem;
+
+  h2 {
+    padding: 1rem 0;
+  }
 `;
 
 const BookmarkGrid = styled.div`

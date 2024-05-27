@@ -2,6 +2,8 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { useAuth } from "../components/LogIn/AuthContext";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const BookmarkContext = createContext();
 
@@ -35,15 +37,17 @@ export function BookmarkProvider({ children }) {
 
       if (bookmarks.includes(movieId)) {
         bookmarks = bookmarks.filter((id) => id !== movieId);
+        toast.success("북마크에서 제거되었습니다.");
       } else {
         bookmarks.push(movieId);
+        toast.success("북마크에 추가되었습니다.");
       }
 
       await setDoc(userDocRef, { movies: bookmarks }, { merge: true });
       setBookmarkedMovies(bookmarks);
     } catch (error) {
       console.error("Error toggling bookmark: ", error);
-      alert("북마크 추가에 실패했습니다.");
+      toast.error("북마크 변경에 실패했습니다.");
     }
   };
 
@@ -62,9 +66,10 @@ export function BookmarkProvider({ children }) {
 
       await setDoc(userDocRef, { movies: bookmarks }, { merge: true });
       setBookmarkedMovies(bookmarks);
+      toast.success("북마크에서 제거되었습니다.");
     } catch (error) {
       console.error("Error removing bookmark: ", error);
-      alert("북마크 제거에 실패했습니다.");
+      toast.error("북마크 제거에 실패했습니다.");
     }
   };
 
@@ -73,6 +78,15 @@ export function BookmarkProvider({ children }) {
       value={{ bookmarkedMovies, toggleBookmark, removeBookmark }}
     >
       {children}
+      <ToastContainer
+        position="bottom-center"
+        autoClose={2000}
+        hideProgressBar
+        closeOnClick
+        closeButton={false}
+        pauseOnHover
+        draggable
+      />
     </BookmarkContext.Provider>
   );
 }

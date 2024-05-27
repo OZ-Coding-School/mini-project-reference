@@ -28,6 +28,15 @@ const MovieDetailContainer = styled.div`
   align-items: center;
 `;
 
+const MovieMainContainer = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #000;
+  position: relative;
+`;
+
 const MovieMainInfo = styled.div`
   position: relative;
   z-index: -1;
@@ -48,6 +57,9 @@ const MovieMainInfo = styled.div`
 
   @media (max-width: 768px) {
     filter: none;
+  }
+
+  @media (max-width: 576px) {
   }
 `;
 
@@ -113,7 +125,8 @@ const MovieDetails = styled.div`
 
 const CastNames = styled.p`
   font-size: 1rem;
-  color: white;
+  color: #fff;
+  // color: ${({ theme }) => theme.text};
 
   span {
     cursor: pointer;
@@ -150,7 +163,7 @@ const MovieAdditionalInfo = styled.div`
 
 const CastInfo = styled.div`
   position: relative;
-  padding: 0 0 1.5rem;
+  padding: 0 0 2rem;
 
   @media (max-width: 576px) {
     padding: 0 0 2.5rem;
@@ -409,50 +422,52 @@ export default function MovieDetailPage() {
 
   return (
     <MovieDetailContainer>
-      <MovieMainInfo $backdropPath={backdropPath} />
-      <MovieContent>
-        <MovieDetails>
-          <h1>
-            {movie.title}
-            <BookmarkButton
-              onClick={() => toggleBookmark(id)}
-              $isBookmarked={isBookmarked}
-            >
-              <FontAwesomeIcon
-                icon={isBookmarked ? solidHeart : regularHeart}
-              />
-            </BookmarkButton>
-          </h1>
+      <MovieMainContainer>
+        <MovieMainInfo $backdropPath={backdropPath} />
+        <MovieContent>
+          <MovieDetails>
+            <h1>
+              {movie.title}
+              <BookmarkButton
+                onClick={() => toggleBookmark(id)}
+                $isBookmarked={isBookmarked}
+              >
+                <FontAwesomeIcon
+                  icon={isBookmarked ? solidHeart : regularHeart}
+                />
+              </BookmarkButton>
+            </h1>
 
-          <p>별점: {movie.vote_average}</p>
-          <p>장르: {genres}</p>
-          <p>상영시간: {runtime}</p>
-          <p>줄거리: {movie.overview}</p>
-          <WatchProviders>
-            {watchProviders.length > 0 && (
-              <>
-                <h2>시청 가능한 플랫폼:</h2>
-                <ProvidersWrapper>
-                  {watchProviders.map((provider, index) => (
-                    <MovieProvider key={index} movieProvider={provider} />
-                  ))}
-                </ProvidersWrapper>
-              </>
-            )}
-          </WatchProviders>
-          <CastNames>
-            출연: {castNames}
-            {cast.length > 5 && (
-              <span onClick={scrollToAdditionalInfo}> 더보기</span>
-            )}
-          </CastNames>
-        </MovieDetails>
-        <MoviePoster
-          src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-          alt={movie.title}
-          className="movie-poster"
-        />
-      </MovieContent>
+            <p>별점: {movie.vote_average}</p>
+            <p>장르: {genres}</p>
+            <p>상영시간: {runtime}</p>
+            <p>줄거리: {movie.overview}</p>
+            <WatchProviders>
+              {watchProviders.length > 0 && (
+                <>
+                  <h2>시청 가능한 플랫폼:</h2>
+                  <ProvidersWrapper>
+                    {watchProviders.map((provider, index) => (
+                      <MovieProvider key={index} movieProvider={provider} />
+                    ))}
+                  </ProvidersWrapper>
+                </>
+              )}
+            </WatchProviders>
+            <CastNames>
+              출연: {castNames}
+              {cast.length > 5 && (
+                <span onClick={scrollToAdditionalInfo}> 더보기</span>
+              )}
+            </CastNames>
+          </MovieDetails>
+          <MoviePoster
+            src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+            alt={movie.title}
+            className="movie-poster"
+          />
+        </MovieContent>
+      </MovieMainContainer>
 
       <SimilarMoviesSection>
         <h2>비슷한 영화</h2>
@@ -497,7 +512,7 @@ export default function MovieDetailPage() {
               swiper.params.pagination.el = paginationRef.current;
             }}
             breakpoints={{
-              998: { slidesPerView: 4.5, slidesPerGroup: 4 },
+              992: { slidesPerView: 4.5, slidesPerGroup: 4 },
               1200: { slidesPerView: 5.5, slidesPeGroup: 5 },
             }}
           >

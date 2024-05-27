@@ -1,12 +1,5 @@
+import React from "react";
 import styled from "styled-components";
-
-const CastList = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  padding: 10px;
-  justify-content: flex-start;
-`;
 
 const CastTileDiv = styled.div`
   width: 100%;
@@ -44,6 +37,14 @@ const Character = styled.p`
   font-style: italic;
 `;
 
+const truncateText = (text, maxLength) => {
+  const index = text.indexOf(" (");
+  if (index !== -1 && index < maxLength) {
+    return text.substring(0, index) + "...";
+  }
+  return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
+};
+
 export default function CastTile(props) {
   return (
     <CastTileDiv>
@@ -57,7 +58,7 @@ export default function CastTile(props) {
       />
       <Info>
         <Name>{props.person.original_name}</Name>
-        <Character>{props.person.character}</Character>
+        <Character>{truncateText(props.person.character, 20)}</Character>
       </Info>
     </CastTileDiv>
   );

@@ -5,7 +5,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch, faTimes, faBars } from "@fortawesome/free-solid-svg-icons";
 import ToggleThemeButton from "../../style/ToggleThemeButton";
 import SearchResults from "../SearchResults/SearchResults";
-import Sidebar from "./Sidebar"; // Ensure this matches the file name
+import Sidebar from "./Sidebar";
+import { useAuth } from "../LogIn/AuthContext";
 
 const Header = styled.header`
   position: fixed;
@@ -117,7 +118,7 @@ const SubmitSearchButton = styled.button`
 `;
 
 const ToggleSearchButton = styled.button`
-  width: 2rem;
+  padding: 0 0.7rem;
   font-size: 1.3rem;
   color: gray;
   border: none;
@@ -144,8 +145,10 @@ const AuthButtons = styled.div`
   }
 `;
 
-const Button = styled.button`
-  padding: 8px 16px;
+const LinkItem = styled.a`
+  display: flex;
+  align-items: center;
+  padding: 0 0.7rem;
   background-color: #7000ff;
   border: none;
   border-radius: 4px;
@@ -167,7 +170,7 @@ const HamburgerButton = styled.button`
   background: none;
   cursor: pointer;
   position: absolute;
-  top: 1.1rem;
+  top: 1.3rem;
   right: 1.5rem;
   z-index: 1002;
 
@@ -180,10 +183,50 @@ const HamburgerButton = styled.button`
   }
 `;
 
-export default function NavBar() {
+const ProfileDropdown = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+`;
+
+const ProfileImage = styled.img`
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+`;
+
+const DropdownMenu = styled.div`
+  display: ${({ $show }) => ($show ? "block" : "none")};
+  position: absolute;
+  top: 100%;
+  right: 0;
+  padding: 0.4rem 0px;
+  background-color: rgb(51, 51, 51);
+  animation: 0.2s ease-in-out 0s 1 normal forwards running animation-uenumi;
+`;
+
+const DropdownItem = styled.a`
+  display: block;
+  padding: 0.6rem 1.8rem;
+  font-size: 1.2rem;
+  color: rgb(255, 255, 255);
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease 0s;
+
+  &:hover {
+    font-weight: 700;
+  }
+`;
+
+export default function NavBar({ setNavBarHeight }) {
   const [search, setSearch] = useState("");
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const searchContainerRef = useRef(null);
@@ -218,6 +261,16 @@ export default function NavBar() {
     setIsMenuOpen(false);
   };
 
+  const handleLogoutClick = () => {
+    logout()
+      .then(() => {
+        navigate("/");
+      })
+      .catch((error) => {
+        console.error("Logout failed: ", error);
+      });
+  };
+
   useEffect(() => {
     function handleClickOutside(event) {
       if (
@@ -241,21 +294,53 @@ export default function NavBar() {
     setIsMenuOpen(false);
   }, [location.pathname]);
 
+  const combinedRefCallback = (element) => {
+    if (element) {
+      setNavBarHeight(element.offsetHeight);
+      searchContainerRef.current = element;
+    }
+  };
+
   return (
-    <Header ref={searchContainerRef} className="navbar-container">
+    <Header ref={combinedRefCallback}>
       <NavBarContainer>
         <LogoContainer href="/">
           <img src="/images/oz_movie-logo.png" alt="OZ Movie Logo" />
         </LogoContainer>
         <ActionBar>
           <ToggleThemeButton />
-          <AuthButtons>
-            <Button className="login-button">로그인</Button>
-            <Button className="signup-button">회원가입</Button>
-          </AuthButtons>
           <ToggleSearchButton onClick={toggleSearch}>
             <FontAwesomeIcon icon={isSearchActive ? faTimes : faSearch} />
           </ToggleSearchButton>
+          <AuthButtons>
+            {currentUser ? (
+              <ProfileDropdown
+                onMouseEnter={() => setShowDropdown(true)}
+                onMouseLeave={() => setShowDropdown(false)}
+              >
+                <ProfileImage
+                  src={currentUser.photoURL || "images/user.png"}
+                  alt="Profile"
+                />
+                <DropdownMenu $show={showDropdown}>
+                  <DropdownItem href="/mypage">관심목록</DropdownItem>
+                  <DropdownItem onClick={handleLogoutClick}>
+                    로그아웃
+                  </DropdownItem>
+                </DropdownMenu>
+              </ProfileDropdown>
+            ) : (
+              <>
+                <LinkItem className="login-button" href="/login">
+                  로그인
+                </LinkItem>
+                <LinkItem className="signup-button" href="/signup">
+                  회원가입
+                </LinkItem>
+              </>
+            )}
+          </AuthButtons>
+
           <HamburgerButton onClick={toggleMenu}>
             <FontAwesomeIcon icon={isMenuOpen ? faTimes : faBars} />
           </HamburgerButton>

@@ -24,6 +24,23 @@ const GlobalStyle = createGlobalStyle`
     width: 100%;
     object-fit: cover;
   }
+
+  html {
+    font-size: 16px; 
+
+    @media (max-width: 1200px) {
+      font-size: 15px; 
+    }
+
+    @media (max-width: 992px) {
+      font-size: 14px;
+    }
+
+    @media (max-width: 576px) {
+      font-size: 12px;
+    }
+  }
+
 `;
 
 export default GlobalStyle;

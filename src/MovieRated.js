@@ -96,13 +96,6 @@ const CustomSwiper = styled(Swiper)`
 `;
 
 const NavigationButton = styled.div`
-  // background: hsla(0, 0%, 8%, 0.5);
-  background: radial-gradient(
-    106.25% 50% at 106.25% 50%,
-    rgba(0, 0, 0, 0.9) 0%,
-    rgba(0, 0, 0, 0.6) 52.6%,
-    rgba(0, 0, 0, 0) 100%
-  );
   color: #fff;
   display: flex;
   justify-content: center;
@@ -118,10 +111,22 @@ const NavigationButton = styled.div`
   font-size: 1.5rem;
 
   &.prev {
+    background: radial-gradient(
+      106.25% 50% at -6.25% 50%,
+      rgba(0, 0, 0, 0.9) 0%,
+      rgba(0, 0, 0, 0.6) 52.6%,
+      rgba(0, 0, 0, 0) 100%
+    );
     left: -4rem;
   }
 
   &.next {
+    background: radial-gradient(
+      106.25% 50% at 106.25% 50%,
+      rgba(0, 0, 0, 0.9) 0%,
+      rgba(0, 0, 0, 0.6) 52.6%,
+      rgba(0, 0, 0, 0) 100%
+    );
     right: -4rem;
   }
 

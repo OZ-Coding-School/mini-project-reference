@@ -7,12 +7,20 @@ import Movie from "../Movie/Movie";
 import StarRating from "../StarRating/StarRating";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown, faChevronUp } from "@fortawesome/free-solid-svg-icons";
+import {
+  faChevronDown,
+  faChevronUp,
+  faHeart as solidHeart,
+  faChevronLeft,
+  faChevronRight,
+} from "@fortawesome/free-solid-svg-icons";
+import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
+import { useBookmarks } from "../../contexts/BookmarkContext";
 
 const MovieDetailContainer = styled.div`
   display: flex;
@@ -22,6 +30,7 @@ const MovieDetailContainer = styled.div`
 
 const MovieMainInfo = styled.div`
   position: relative;
+  z-index: -1;
   width: 100%;
   height: 60vh;
   margin-bottom: -350px;
@@ -47,7 +56,6 @@ const MovieContent = styled.div`
   z-index: 2;
   display: grid;
   column-gap: 2em;
-  // grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
   width: 100%;
   max-width: 65rem;
   border-radius: 10px;
@@ -56,12 +64,8 @@ const MovieContent = styled.div`
   @media (max-width: 992px) {
     grid-template-columns: 1fr;
     margin-top: 0;
-    // margin: ${({ theme }) => theme.mobilePadding};
     padding-right: 4rem;
     padding-left: 4rem;
-  }
-
-  @media (max-width: 768px) {
   }
 
   @media (max-width: 576px) {
@@ -99,6 +103,12 @@ const MovieDetails = styled.div`
   h1 {
     font-size: 3rem;
   }
+
+  @media (max-width: 576px) {
+    h1 {
+      font-size: 2.5rem;
+    }
+  }
 `;
 
 const CastNames = styled.p`
@@ -108,6 +118,7 @@ const CastNames = styled.p`
   span {
     cursor: pointer;
     color: #7000ff;
+    white-space: nowrap;
 
     &:hover {
       text-decoration: underline;
@@ -122,6 +133,10 @@ const MovieAdditionalInfo = styled.div`
   flex-direction: column;
   width: 100%;
 
+  h2 {
+    padding: 1rem 0;
+  }
+
   @media (max-width: 992px) {
     padding-right: 4rem;
     padding-left: 4rem;
@@ -134,11 +149,116 @@ const MovieAdditionalInfo = styled.div`
 `;
 
 const CastInfo = styled.div`
-  flex: 1;
-  padding: 2rem 0;
+  position: relative;
+  padding: 0 0 1.5rem;
 
-  h2 {
-    margin-bottom: 20px;
+  @media (max-width: 576px) {
+    padding: 0 0 2.5rem;
+  }
+`;
+
+const CustomSwiper = styled(Swiper)`
+  position: relative;
+  overflow: hidden;
+
+  .swiper-wrapper {
+    align-items: stretch;
+  }
+
+  .swiper-slide {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: auto !important;
+  }
+
+  .swiper-pagination {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 21;
+  }
+
+  .swiper-pagination-fraction {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: transparent;
+    padding: 0 0.5rem;
+    border-radius: 2rem;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    font-size: 1.2rem;
+    cursor: pointer;
+  }
+
+  .swiper-pagination-current,
+  .swiper-pagination-total {
+    margin: 0 2px;
+  }
+
+  .swiper-pagination-current {
+    font-weight: bold;
+  }
+
+  .swiper-pagination-total {
+    opacity: 0.7;
+  }
+
+  &:hover .navigation-button {
+    opacity: 1;
+  }
+`;
+
+const NavigationButton = styled.div`
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3rem;
+  height: 100%;
+  z-index: 20;
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 1.5rem;
+
+  &.prev {
+    background: radial-gradient(
+      106.25% 50% at -6.25% 50%,
+      rgba(0, 0, 0, 0.9) 0%,
+      rgba(0, 0, 0, 0.6) 52.6%,
+      rgba(0, 0, 0, 0) 100%
+    );
+    left: 0;
+  }
+
+  &.next {
+    background: radial-gradient(
+      106.25% 50% at 106.25% 50%,
+      rgba(0, 0, 0, 0.9) 0%,
+      rgba(0, 0, 0, 0.6) 52.6%,
+      rgba(0, 0, 0, 0) 100%
+    );
+    right: 0;
+  }
+
+  @media (max-width: 576px) {
+    width: 2rem;
+
+    /* &.prev {
+      left: -2rem;
+    }
+
+    &.next {
+      right: -2rem;
+    } */
   }
 `;
 
@@ -147,10 +267,10 @@ const WatchProviders = styled.div``;
 const SimilarMoviesSection = styled.div`
   max-width: 65rem;
   width: 100%;
+  margin-top: 3rem;
 
   h2 {
-    margin-bottom: 20px;
-    margin-top: 48px;
+    padding: 1rem 0;
   }
 
   @media (max-width: 992px) {
@@ -207,8 +327,27 @@ const ToggleMoreMoviesButton = styled.button`
 `;
 
 const ProvidersWrapper = styled.div`
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
   gap: 1rem;
+
+  @media (max-width: 576px) {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+  }
+`;
+
+const BookmarkButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.5rem;
+  padding-left: 1rem;
+  color: ${({ $isBookmarked }) => ($isBookmarked ? "red" : "white")};
+
+  &:hover {
+    color: ${({ $isBookmarked }) => ($isBookmarked ? "darkred" : "lightgray")};
+  }
 `;
 
 export default function MovieDetailPage() {
@@ -221,8 +360,13 @@ export default function MovieDetailPage() {
   const [similarMovies, setSimilarMovies] = useState([]); // 비슷한 영화 데이터 저장
   const [backdropPath, setBackdropPath] = useState("");
   const [showMoreMovies, setShowMoreMovies] = useState(false); // 비슷한 영화 더보기 토글 상태
+  const { bookmarkedMovies, toggleBookmark } = useBookmarks();
+  const isBookmarked = bookmarkedMovies.includes(id);
 
   const additionalInfoRef = useRef(null); // 추가 정보 섹션에 대한 ref 생성
+  const prevRef = useRef(null);
+  const nextRef = useRef(null);
+  const paginationRef = useRef(null);
 
   useEffect(() => {
     API.get(`/movie/${id}?language=ko-KR`).then((response) => {
@@ -258,6 +402,7 @@ export default function MovieDetailPage() {
       .map((actor) => actor.name)
       .join(", ") + (cast.length > 5 ? "..." : "");
 
+  // 더보기 이동
   const scrollToAdditionalInfo = () => {
     additionalInfoRef.current.scrollIntoView({ behavior: "smooth" });
   };
@@ -267,7 +412,18 @@ export default function MovieDetailPage() {
       <MovieMainInfo $backdropPath={backdropPath} />
       <MovieContent>
         <MovieDetails>
-          <h1>{movie.title}</h1>
+          <h1>
+            {movie.title}
+            <BookmarkButton
+              onClick={() => toggleBookmark(id)}
+              $isBookmarked={isBookmarked}
+            >
+              <FontAwesomeIcon
+                icon={isBookmarked ? solidHeart : regularHeart}
+              />
+            </BookmarkButton>
+          </h1>
+
           <p>별점: {movie.vote_average}</p>
           <p>장르: {genres}</p>
           <p>상영시간: {runtime}</p>
@@ -319,19 +475,30 @@ export default function MovieDetailPage() {
       </SimilarMoviesSection>
 
       <MovieAdditionalInfo ref={additionalInfoRef}>
+        <h2>출연:</h2>
         <CastInfo>
-          <h2>출연:</h2>
-          <Swiper
+          <CustomSwiper
             modules={[Navigation, Pagination]}
             spaceBetween={10}
-            slidesPerView={2}
-            slidesPerGroup={2}
-            navigation
-            pagination={{ clickable: true }}
+            slidesPerView={1.5}
+            slidesPerGroup={1}
+            navigation={{
+              prevEl: prevRef.current,
+              nextEl: nextRef.current,
+            }}
+            pagination={{
+              el: paginationRef.current,
+              clickable: true,
+              type: "fraction",
+            }}
+            onBeforeInit={(swiper) => {
+              swiper.params.navigation.prevEl = prevRef.current;
+              swiper.params.navigation.nextEl = nextRef.current;
+              swiper.params.pagination.el = paginationRef.current;
+            }}
             breakpoints={{
-              576: { slidesPerView: 2, slidesPerGroup: 2 },
-              998: { slidesPerView: 4, slidesPerGroup: 4 },
-              1200: { slidesPerView: 5, slidesPerGroup: 5 },
+              998: { slidesPerView: 4.5, slidesPerGroup: 4 },
+              1200: { slidesPerView: 5.5, slidesPeGroup: 5 },
             }}
           >
             {cast.map((actor, index) => (
@@ -339,7 +506,14 @@ export default function MovieDetailPage() {
                 <CastTile person={actor} />
               </SwiperSlide>
             ))}
-          </Swiper>
+            <NavigationButton ref={prevRef} className="prev navigation-button">
+              <FontAwesomeIcon icon={faChevronLeft} />
+            </NavigationButton>
+            <NavigationButton ref={nextRef} className="next navigation-button">
+              <FontAwesomeIcon icon={faChevronRight} />
+            </NavigationButton>
+          </CustomSwiper>
+          <div ref={paginationRef} className="swiper-pagination"></div>
         </CastInfo>
       </MovieAdditionalInfo>
     </MovieDetailContainer>

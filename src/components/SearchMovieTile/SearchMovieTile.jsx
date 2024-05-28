@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 const TileContent = styled.div`
   display: flex;
   flex-direction: column;
+  cursor: pointer;
 `;
 
 const TileImage = styled.div`
@@ -14,6 +15,13 @@ const TileImage = styled.div`
   border-radius: 4px;
   aspect-ratio: 8 / 11;
   overflow: hidden;
+
+  transition: transform 0.3s, box-shadow 0.3s;
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  }
 `;
 
 const Image = styled.img`

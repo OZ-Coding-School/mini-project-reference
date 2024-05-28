@@ -58,7 +58,7 @@ export default function CastTile(props) {
       />
       <Info>
         <Name>{props.person.original_name}</Name>
-        <Character>{truncateText(props.person.character, 20)}</Character>
+        <Character>{truncateText(props.person.character, 15)}</Character>
       </Info>
     </CastTileDiv>
   );

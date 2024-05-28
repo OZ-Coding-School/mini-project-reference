@@ -17,6 +17,13 @@ const ItemImg = styled.div`
     object-fit: cover;
     display: block;
   }
+
+  transition: transform 0.3s, box-shadow 0.3s;
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  }
 `;
 
 const ItemTitle = styled.div`

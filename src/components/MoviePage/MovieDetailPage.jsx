@@ -4,7 +4,6 @@ import { useParams } from "react-router-dom";
 import CastTile from "../CastTile/CastTile";
 import MovieProvider from "../MovieProvider/MovieProvider";
 import Movie from "../Movie/Movie";
-import StarRating from "../StarRating/StarRating";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -34,12 +33,12 @@ const MovieMainContainer = styled.div`
   flex-direction: column;
   align-items: center;
   background-color: #000;
-  position: relative;
+  overflow: hidden;
+  padding-bottom: 2rem;
 `;
 
 const MovieMainInfo = styled.div`
   position: relative;
-  z-index: -1;
   width: 100%;
   height: 60vh;
   margin-bottom: -350px;
@@ -70,7 +69,6 @@ const MovieContent = styled.div`
   column-gap: 2em;
   width: 100%;
   max-width: 65rem;
-  border-radius: 10px;
   margin-top: -100px;
 
   @media (max-width: 992px) {
@@ -373,7 +371,7 @@ export default function MovieDetailPage() {
   const [similarMovies, setSimilarMovies] = useState([]); // 비슷한 영화 데이터 저장
   const [backdropPath, setBackdropPath] = useState("");
   const [showMoreMovies, setShowMoreMovies] = useState(false); // 비슷한 영화 더보기 토글 상태
-  const { bookmarkedMovies, toggleBookmark } = useBookmarks();
+  const { bookmarkedMovies, toggleBookmark, removeBookmark } = useBookmarks();
   const isBookmarked = bookmarkedMovies.includes(id);
 
   const additionalInfoRef = useRef(null); // 추가 정보 섹션에 대한 ref 생성
@@ -404,6 +402,10 @@ export default function MovieDetailPage() {
       });
     });
   }, [id]);
+
+  useEffect(() => {
+    console.log("디테일페이지 상태", isBookmarked);
+  }, [isBookmarked]);
 
   const handleToggleMoreMovies = () => {
     setShowMoreMovies((prevShow) => !prevShow);
@@ -513,7 +515,7 @@ export default function MovieDetailPage() {
             }}
             breakpoints={{
               992: { slidesPerView: 4.5, slidesPerGroup: 4 },
-              1200: { slidesPerView: 5.5, slidesPeGroup: 5 },
+              1200: { slidesPerView: 4.5, slidesPeGroup: 4 },
             }}
           >
             {cast.map((actor, index) => (

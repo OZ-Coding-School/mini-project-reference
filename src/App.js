@@ -25,29 +25,22 @@ function App() {
 
   return (
     <NavBarProvider>
-      <AuthProvider>
-        <BookmarkProvider>
-          <NavBarProvider>
-            <Router>
-              <CustomThemeProvider>
-                <GlobalStyle />
-                <NavBar setNavBarHeight={setNavBarHeight} />
-
-                <MainContainer $paddingTop={navBarHeight}>
-                  <Routes>
-                    <Route path="/" element={<MovieList />} />
-                    <Route path="/movie/:id" element={<MovieDetailPage />} />
-                    <Route path="/search/:query" element={<SearchPage />} />
-                    <Route path="/signup" element={<Signup />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/mypage" element={<MyPage />} />
-                  </Routes>
-                </MainContainer>
-              </CustomThemeProvider>
-            </Router>
-          </NavBarProvider>
-        </BookmarkProvider>
-      </AuthProvider>
+      <Router>
+        <CustomThemeProvider>
+          <GlobalStyle />
+          <NavBar setNavBarHeight={setNavBarHeight} />
+          <MainContainer $paddingTop={navBarHeight}>
+            <Routes>
+              <Route path="/" element={<MovieList />} />
+              <Route path="/movie/:id" element={<MovieDetailPage />} />
+              <Route path="/search/:query" element={<SearchPage />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/mypage" element={<MyPage />} />
+            </Routes>
+          </MainContainer>
+        </CustomThemeProvider>
+      </Router>
     </NavBarProvider>
   );
 }

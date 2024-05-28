@@ -3,12 +3,12 @@ import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { useBookmarks } from "../../contexts/BookmarkContext";
+import { useNavigate } from "react-router-dom";
 
 const ItemContainer = styled.div`
   position: relative;
   cursor: pointer;
   width: 100%;
-  max-width: 200px;
 `;
 
 const ItemImg = styled.div`
@@ -23,6 +23,13 @@ const ItemImg = styled.div`
     height: 100%;
     object-fit: cover;
     display: block;
+  }
+
+  transition: transform 0.3s, box-shadow 0.3s;
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
   }
 `;
 
@@ -67,16 +74,21 @@ const ItemInfo = styled.p`
 `;
 
 const MovieItem = ({ movie, onRemove }) => {
+  const navigate = useNavigate();
   const { removeBookmark } = useBookmarks();
 
-  const handleRemoveClick = (e) => {
+  const handleItemClick = () => {
+    navigate(`/movie/${movie.id}`);
+  };
+
+  const handleRemoveClick = async (e) => {
     e.stopPropagation();
-    removeBookmark(movie.id);
+    await removeBookmark(movie.id);
     onRemove(movie.id);
   };
 
   return (
-    <ItemContainer>
+    <ItemContainer onClick={handleItemClick}>
       <ItemImg>
         <img
           src={`https://image.tmdb.org/t/p/w400${movie.poster_path}`}
@@ -87,9 +99,9 @@ const MovieItem = ({ movie, onRemove }) => {
               "https://images.unsplash.com/photo-1662675117392-561a414fcefc?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80";
           }}
         />
-        <RemoveButton onClick={handleRemoveClick}>
+        {/* <RemoveButton onClick={handleRemoveClick}>
           <FontAwesomeIcon icon={faTrash} />
-        </RemoveButton>
+        </RemoveButton> */}
       </ItemImg>
       <ItemTitle>
         <ItemInfo>{movie.title}</ItemInfo>

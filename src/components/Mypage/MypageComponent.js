@@ -42,8 +42,8 @@ export default function MyPageComponent() {
     fetchMovies();
   }, [bookmarkedMovies]);
 
-  const handleRemoveMovie = (movieId) => {
-    removeBookmark(movieId);
+  const handleRemoveMovie = async (movieId) => {
+    await removeBookmark(movieId);
     setMovies((prevMovies) =>
       prevMovies.filter((movie) => movie.id !== movieId)
     );

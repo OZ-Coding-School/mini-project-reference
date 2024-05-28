@@ -15,7 +15,7 @@ const SearchResultsList = styled.div`
   gap: 0 0.65em;
   margin-top: 3rem;
   grid-auto-rows: 0px;
-  overflow-y: hidden;
+  // overflow-y: hidden;
   grid-template: auto / repeat(5, 1fr);
 `;
 

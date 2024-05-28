@@ -24,6 +24,19 @@ export function BookmarkProvider({ children }) {
     fetchBookmarkedMovies();
   }, [currentUser]);
 
+  const updateBookmarks = async (newBookmarks) => {
+    if (!currentUser) return;
+
+    try {
+      const userDocRef = doc(db, "bookmarks", currentUser.uid);
+      await setDoc(userDocRef, { movies: newBookmarks }, { merge: true });
+      setBookmarkedMovies(newBookmarks);
+    } catch (error) {
+      console.error("Error updating bookmarks: ", error);
+      toast.error("북마크 업데이트에 실패했습니다.");
+    }
+  };
+
   const toggleBookmark = async (movieId) => {
     if (!currentUser) {
       alert("로그인이 필요합니다.");
@@ -43,8 +56,7 @@ export function BookmarkProvider({ children }) {
         toast.success("북마크에 추가되었습니다.");
       }
 
-      await setDoc(userDocRef, { movies: bookmarks }, { merge: true });
-      setBookmarkedMovies(bookmarks);
+      await updateBookmarks(bookmarks);
     } catch (error) {
       console.error("Error toggling bookmark: ", error);
       toast.error("북마크 변경에 실패했습니다.");
@@ -62,10 +74,13 @@ export function BookmarkProvider({ children }) {
       const userDoc = await getDoc(userDocRef);
       let bookmarks = userDoc.exists() ? userDoc.data().movies : [];
 
-      bookmarks = bookmarks.filter((id) => id !== movieId);
+      if (!bookmarks.includes(movieId)) {
+        toast.info("해당 영화는 북마크에 없습니다.");
+        return;
+      }
 
-      await setDoc(userDocRef, { movies: bookmarks }, { merge: true });
-      setBookmarkedMovies(bookmarks);
+      bookmarks = bookmarks.filter((id) => id !== movieId);
+      await updateBookmarks(bookmarks);
       toast.success("북마크에서 제거되었습니다.");
     } catch (error) {
       console.error("Error removing bookmark: ", error);

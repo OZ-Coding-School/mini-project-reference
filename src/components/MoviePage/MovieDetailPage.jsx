@@ -41,7 +41,7 @@ const MovieMainInfo = styled.div`
   position: relative;
   width: 100%;
   height: 60vh;
-  margin-bottom: -350px;
+  // margin-bottom: -350px;
   display: flex;
   justify-content: center;
   align-items: center;
